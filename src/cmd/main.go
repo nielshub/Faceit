@@ -4,6 +4,7 @@ import (
 	"Faceit/src/internal/handlers"
 	"Faceit/src/internal/repositories"
 	service "Faceit/src/internal/services"
+	"Faceit/src/middleware"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ func main() {
 	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 
 	r := gin.Default()
-	app := r.Group("/")
+	app := r.Group("/", middleware.LoggerMiddleware())
 
 	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(colletionName, db)
 	userService := service.NewUserService(NonRelationalUserDBRepository)
