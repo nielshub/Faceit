@@ -16,18 +16,18 @@ func NewUserService(relationalUserDBRepository ports.RelationalUserDBRepository)
 	}
 }
 
-func (user *UserService) CreateUser(ctx context.Context, newUser model.User) (string, error) {
-	return "", nil
+func (user *UserService) CreateUser(ctx context.Context, newUser model.User) (*model.User, error) {
+	return user.relationalUserDBRepository.CreateUser(ctx, &newUser)
 }
 
 func (user *UserService) DeleteUser(ctx context.Context, userId string) error {
-	return nil
+	return user.relationalUserDBRepository.DeleteUser(ctx, userId)
 }
 
-func (user *UserService) UpdateUser(ctx context.Context, userId string, updatedUser model.User) error {
-	return nil
+func (user *UserService) UpdateUser(ctx context.Context, userId string, updatedUser model.User) (*model.User, error) {
+	return user.relationalUserDBRepository.UpdateUser(ctx, userId, updatedUser)
 }
 
-func (user *UserService) GetUsers(ctx context.Context, filters map[string]string) ([]model.User, error) {
-	return nil, nil
+func (user *UserService) GetUsers(ctx context.Context, key, value string) ([]model.User, error) {
+	return user.relationalUserDBRepository.GetUsers(ctx, key, value)
 }
