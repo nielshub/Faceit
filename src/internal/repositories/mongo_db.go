@@ -61,3 +61,16 @@ func (repo *MongoDBRepository) DeleteUser(ctx context.Context, userId string) er
 
 	return err
 }
+
+func (repo *MongoDBRepository) GetUsers(ctx context.Context, key, value string) ([]model.User, error) {
+	var usersArray []model.User
+	if key == "first_name" || key == "last_name" || key == "nickname" || key == "password" || key == "email" || key == "country" {
+		filter := bson.M{key: value}
+		err := repo.Database.C(repo.CollectionName).Find(filter).All(&usersArray)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return usersArray, nil
+}
