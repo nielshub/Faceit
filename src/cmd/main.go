@@ -4,14 +4,20 @@ import (
 	"Faceit/src/internal/handlers"
 	"Faceit/src/internal/repositories"
 	service "Faceit/src/internal/services"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
+	"github.com/joho/godotenv"
+	"github.com/rs/zerolog"
 )
 
 func main() {
 	var db *mgo.Database
 	colletionName := "users"
+
+	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+
 	r := gin.Default()
 	app := r.Group("/")
 
@@ -21,11 +27,16 @@ func main() {
 	handlers.NewHealthHandler(app)
 	handlers.NewUserHandler(app, userService)
 
-	err := r.Run(":8080")
+	err := godotenv.Load("../../env/variables.env")
 	if err != nil {
-		//Log something with zerolog
+		logger.Error().Msg("Variables file not found...")
 	}
 
-	//Log that server has stopped
+	err = r.Run(":8080")
+	if err != nil {
+		logger.Error().Msg("Error running the server on port 8080")
+	}
+
+	logger.Info().Msg("Stopping server")
 
 }
