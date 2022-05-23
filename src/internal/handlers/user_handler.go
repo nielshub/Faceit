@@ -22,6 +22,8 @@ func NewUserHandler(app *gin.RouterGroup, userService ports.UserService) UserHan
 	userRooter := app.Group("/user")
 	userRooter.POST("/create", userAPI.userCreate)
 	userRooter.PUT("/update", userAPI.userUpdate)
+	userRooter.POST("/delete", userAPI.userDelete)
+	userRooter.GET("/get", userAPI.getUsers)
 
 	userAPI.router = userRooter
 
@@ -75,7 +77,38 @@ func (uh *UserHandler) userUpdate(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error updating user"})
 		return
 	}
-	response := "User has been updated properly. User ID: " + finalUser.ID
+	response := "User:" + finalUser.ID + " has been updated properly."
+
+	c.JSON(http.StatusOK, response)
+
+}
+
+func (uh *UserHandler) userDelete(c *gin.Context) {
+	id := c.Param("fileId")
+
+	err := uh.userService.DeleteUser(c.Request.Context(), id)
+	if err != nil {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error deleting user"})
+		return
+	}
+	response := "User:" + id + " has been deleted properly."
+
+	c.JSON(http.StatusOK, response)
+
+}
+
+func (uh *UserHandler) getUsers(c *gin.Context) {
+	key := c.Query("key")
+	value := c.Query("value")
+
+	users, err := uh.userService.GetUsers(c.Request.Context(), key, value)
+	if err != nil {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error getting users"})
+		return
+	}
+	response := users
 
 	c.JSON(http.StatusOK, response)
 
