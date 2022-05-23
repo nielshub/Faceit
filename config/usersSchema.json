@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "http://example.com/example.json",
+  "title": "User Schema",
+  "description": "Information of a user",
+  "ID": {
+    "description": "User Id",
+    "type": "string",
+    "minLength": 1
+  },
+  "FirstName": {
+    "description": "FirstName",
+    "type": "string",
+    "minLength": 1
+  },
+  "LastName": {
+    "description": "LastName",
+    "type": "string",
+    "minLength": 1
+  },
+  "Nickname": {
+    "description": "Nickname",
+    "type": "string",
+    "minLength": 1
+  },
+  "Password": {
+    "description": "Password",
+    "type": "string",
+    "minLength": 1
+  },
+  "Email": {
+    "description": "Email",
+    "type": "string",
+    "minLength": 1
+  },
+  "Country": {
+    "description": "Country",
+    "type": "string",
+    "minLength": 1
+  }
+}
