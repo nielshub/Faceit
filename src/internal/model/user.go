@@ -13,3 +13,25 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+func (u *User) Merge(other User) {
+	if other.FirstName != "" {
+		u.FirstName = other.FirstName
+	}
+	if other.LastName != "" {
+		u.LastName = other.LastName
+	}
+	if other.Nickname != "" {
+		u.Nickname = other.Nickname
+	}
+	if other.Password != "" {
+		u.Password = other.Password
+	}
+	if other.Email != "" {
+		u.Email = other.Email
+	}
+	if other.Country != "" {
+		u.Country = other.Country
+	}
+	u.UpdatedAt = time.Now()
+}
