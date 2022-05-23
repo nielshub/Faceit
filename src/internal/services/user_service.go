@@ -7,10 +7,10 @@ import (
 )
 
 type UserService struct {
-	relationalUserDBRepository ports.RelationalUserDBRepository
+	relationalUserDBRepository ports.NonRelationalUserDBRepository
 }
 
-func NewUserService(relationalUserDBRepository ports.RelationalUserDBRepository) *UserService {
+func NewUserService(relationalUserDBRepository ports.NonRelationalUserDBRepository) *UserService {
 	return &UserService{
 		relationalUserDBRepository: relationalUserDBRepository,
 	}
@@ -25,7 +25,7 @@ func (user *UserService) DeleteUser(ctx context.Context, userId string) error {
 }
 
 func (user *UserService) UpdateUser(ctx context.Context, userId string, updatedUser model.User) (*model.User, error) {
-	return user.relationalUserDBRepository.UpdateUser(ctx, userId, updatedUser)
+	return user.relationalUserDBRepository.UpdateUser(ctx, userId, &updatedUser)
 }
 
 func (user *UserService) GetUsers(ctx context.Context, key, value string) ([]model.User, error) {
