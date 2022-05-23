@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/twinj/uuid"
+)
 
 type User struct {
 	ID        string    `json:"id"`
@@ -33,5 +37,11 @@ func (u *User) Merge(other User) {
 	if other.Country != "" {
 		u.Country = other.Country
 	}
+	u.UpdatedAt = time.Now()
+}
+
+func (u *User) InitializeTime() {
+	u.ID = uuid.NewV4().String()
+	u.CreatedAt = time.Now()
 	u.UpdatedAt = time.Now()
 }
