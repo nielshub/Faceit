@@ -15,7 +15,9 @@ import (
 func main() {
 	log.Init("debug")
 
-	dbURL := "mongodb://localhost:27017"
+	//When deploying app in Docker
+	dbURL := "mongodb://admin:password@mongodb"
+	//dbURL := "mongodb://localhost:27017"
 	colletionName := "users"
 	dataBaseName := "faceit"
 	session, err := mgo.Dial(dbURL)
