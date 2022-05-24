@@ -5,10 +5,13 @@ import (
 	"Faceit/src/internal/ports"
 	"Faceit/src/log"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 type UserHandler struct {
@@ -21,8 +24,8 @@ func NewUserHandler(app *gin.RouterGroup, userService ports.UserService) UserHan
 
 	userRooter := app.Group("/user")
 	userRooter.POST("/create", userAPI.userCreate)
-	userRooter.PUT("/update", userAPI.userUpdate)
-	userRooter.POST("/delete", userAPI.userDelete)
+	userRooter.PUT("/update/:userId", userAPI.userUpdate)
+	userRooter.POST("/delete/:userId", userAPI.userDelete)
 	userRooter.GET("/get", userAPI.getUsers)
 
 	userAPI.router = userRooter
@@ -45,6 +48,12 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 		return
 	}
 
+	if err = jsonSchemaCheck(newUser); err != nil {
+		log.Logger.Error().Msgf("Wrong body struct. Does not match with jsonSchema. Error: %s", err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Wrong body struct. Does not match with jsonSchema."})
+		return
+	}
+
 	newUser.InitializeTime()
 
 	createdUser, err := uh.userService.CreateUser(c.Request.Context(), newUser)
@@ -60,7 +69,7 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 }
 
 func (uh *UserHandler) userUpdate(c *gin.Context) {
-	id := c.Param("fileId")
+	id := c.Param("userId")
 	var updatedUser model.User
 	updatedUserBody, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -70,6 +79,12 @@ func (uh *UserHandler) userUpdate(c *gin.Context) {
 	err = json.Unmarshal(updatedUserBody, &updatedUser)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Could not unmarshal the json body"})
+		return
+	}
+
+	if err = jsonSchemaCheck(updatedUser); err != nil {
+		log.Logger.Error().Msgf("Wrong body struct. Does not match with jsonSchema. Error: %s", err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Wrong body struct. Does not match with jsonSchema."})
 		return
 	}
 
@@ -86,7 +101,7 @@ func (uh *UserHandler) userUpdate(c *gin.Context) {
 }
 
 func (uh *UserHandler) userDelete(c *gin.Context) {
-	id := c.Param("fileId")
+	id := c.Param("userId")
 
 	err := uh.userService.DeleteUser(c.Request.Context(), id)
 	if err != nil {
@@ -114,4 +129,21 @@ func (uh *UserHandler) getUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 
+}
+
+func jsonSchemaCheck(user model.User) error {
+	loader := gojsonschema.NewReferenceLoader(os.Getenv("JSONSCHEMAPATH"))
+	result, err := gojsonschema.Validate(loader, gojsonschema.NewGoLoader(user))
+	if err != nil {
+		return err
+	}
+	if result.Valid() {
+		return nil
+	} else {
+		// Print out each error
+		for _, desc := range result.Errors() {
+			log.Logger.Error().Msgf("- %s\n", desc)
+		}
+		return errors.New("the body of the request is not valid")
+	}
 }
