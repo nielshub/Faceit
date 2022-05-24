@@ -3,9 +3,9 @@ package handlers
 import (
 	"Faceit/src/internal/model"
 	"Faceit/src/internal/ports"
+	"Faceit/src/log"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,11 +34,13 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 	var newUser model.User
 	newUserBody, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
+		log.Logger.Error().Msgf("Could not read the body. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Could not read the body"})
 		return
 	}
 	err = json.Unmarshal(newUserBody, &newUser)
 	if err != nil {
+		log.Logger.Error().Msgf("Could not unmarshal the json body. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Could not unmarshal the json body"})
 		return
 	}
@@ -47,7 +49,7 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 
 	createdUser, err := uh.userService.CreateUser(c.Request.Context(), newUser)
 	if err != nil {
-		log.Println(err.Error())
+		log.Logger.Error().Msgf("Error creating user. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error creating user"})
 		return
 	}
@@ -73,7 +75,7 @@ func (uh *UserHandler) userUpdate(c *gin.Context) {
 
 	finalUser, err := uh.userService.UpdateUser(c.Request.Context(), id, updatedUser)
 	if err != nil {
-		log.Println(err.Error())
+		log.Logger.Error().Msgf("Error updating user. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error updating user"})
 		return
 	}
@@ -88,7 +90,7 @@ func (uh *UserHandler) userDelete(c *gin.Context) {
 
 	err := uh.userService.DeleteUser(c.Request.Context(), id)
 	if err != nil {
-		log.Println(err.Error())
+		log.Logger.Error().Msgf("Error deleting user. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error deleting user"})
 		return
 	}
@@ -104,7 +106,7 @@ func (uh *UserHandler) getUsers(c *gin.Context) {
 
 	users, err := uh.userService.GetUsers(c.Request.Context(), key, value)
 	if err != nil {
-		log.Println(err.Error())
+		log.Logger.Error().Msgf("Error getting users. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error getting users"})
 		return
 	}

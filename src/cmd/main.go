@@ -4,20 +4,19 @@ import (
 	"Faceit/src/internal/handlers"
 	"Faceit/src/internal/repositories"
 	service "Faceit/src/internal/services"
+	"Faceit/src/log"
 	"Faceit/src/middleware"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
 	"github.com/joho/godotenv"
-	"github.com/rs/zerolog"
 )
 
 func main() {
 	var db *mgo.Database
 	colletionName := "users"
 
-	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	log.Init("debug")
 
 	r := gin.Default()
 	app := r.Group("/", middleware.LoggerMiddleware())
@@ -30,14 +29,15 @@ func main() {
 
 	err := godotenv.Load("../../env/variables.env")
 	if err != nil {
-		logger.Error().Msg("Variables file not found...")
+		log.Logger.Error().Msgf("Variables file not found...")
 	}
 
+	log.Logger.Info().Msgf("Starting server")
 	err = r.Run(":8080")
 	if err != nil {
-		logger.Error().Msg("Error running the server on port 8080")
+		log.Logger.Error().Msgf("Error running the server on port 8080")
 	}
 
-	logger.Info().Msg("Stopping server")
+	log.Logger.Info().Msgf("Stopping server")
 
 }
