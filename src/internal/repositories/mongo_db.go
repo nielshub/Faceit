@@ -3,6 +3,7 @@ package repositories
 import (
 	"Faceit/src/internal/model"
 	"context"
+	"errors"
 
 	"github.com/globalsign/mgo"
 	"gopkg.in/mgo.v2/bson"
@@ -70,6 +71,8 @@ func (repo *MongoDBRepository) GetUsers(ctx context.Context, key, value string) 
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		return nil, errors.New("filter key is wrong")
 	}
 
 	return usersArray, nil
