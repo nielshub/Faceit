@@ -31,7 +31,7 @@ func (repo *MongoDBRepository) UpdateUser(ctx context.Context, userId string, us
 	if err != nil {
 		return nil, err
 	}
-	filter := bson.M{"id": bson.ObjectIdHex(userId)}
+	filter := bson.M{"id": userId}
 	existingUser.Merge(*user)
 	update := bson.M{
 		"$set": existingUser,
@@ -47,7 +47,7 @@ func (repo *MongoDBRepository) UpdateUser(ctx context.Context, userId string, us
 
 func (repo *MongoDBRepository) GetUserById(ctx context.Context, userId string) (*model.User, error) {
 	var user *model.User
-	filter := bson.M{"id": bson.ObjectIdHex(userId)}
+	filter := bson.M{"id": userId}
 	err := repo.Database.
 		C(repo.CollectionName).
 		Find(filter).
@@ -57,7 +57,7 @@ func (repo *MongoDBRepository) GetUserById(ctx context.Context, userId string) (
 }
 
 func (repo *MongoDBRepository) DeleteUser(ctx context.Context, userId string) error {
-	filter := bson.M{"id": bson.ObjectIdHex(userId)}
+	filter := bson.M{"id": userId}
 	err := repo.Database.C(repo.CollectionName).Remove(filter)
 
 	return err
