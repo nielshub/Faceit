@@ -3,35 +3,35 @@
   "$id": "http://example.com/example.json",
   "title": "User Schema",
   "description": "Information of a user",
-  "FirstName": {
+  "first_name": {
     "description": "FirstName",
     "type": "string",
     "minLength": 1
   },
-  "LastName": {
+  "last_name": {
     "description": "LastName",
     "type": "string",
     "minLength": 1
   },
-  "Nickname": {
+  "nickname": {
     "description": "Nickname",
     "type": "string",
     "minLength": 1
   },
-  "Password": {
+  "password": {
     "description": "Password",
     "type": "string",
     "minLength": 1
   },
-  "Email": {
+  "email": {
     "description": "Email",
     "type": "string",
     "minLength": 1
   },
-  "Country": {
+  "country": {
     "description": "Country",
     "type": "string",
     "minLength": 1
   },
-  "required": ["FirstName", "Nickname", "Password", "Email", "Country"]
+  "required": ["first_name", "nickname", "password", "email", "country"]
 }
