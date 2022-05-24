@@ -13,29 +13,41 @@ import (
 )
 
 func main() {
-	var db *mgo.Database
-	colletionName := "users"
-
 	log.Init("debug")
+
+	dbURL := "mongodb://localhost:27017"
+	colletionName := "users"
+	dataBaseName := "faceit"
+	session, err := mgo.Dial(dbURL)
+	if err != nil {
+		log.Logger.Error().Msgf("Error connecting to document db. Error: %s", err)
+	}
+	log.Logger.Info().Msgf("Connected to users DB")
+
+	db := mgo.Database{
+		Session: session,
+		Name:    dataBaseName,
+	}
 
 	r := gin.Default()
 	app := r.Group("/", middleware.LoggerMiddleware())
 
-	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(colletionName, db)
+	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(colletionName, &db)
 	userService := service.NewUserService(NonRelationalUserDBRepository)
 
 	handlers.NewHealthHandler(app)
 	handlers.NewUserHandler(app, userService)
 
-	err := godotenv.Load("../../env/variables.env")
+	err = godotenv.Load("../../env/variables.env")
 	if err != nil {
-		log.Logger.Error().Msgf("Variables file not found...")
+		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
 	}
+	log.Logger.Info().Msgf("Environment variables loaded")
 
 	log.Logger.Info().Msgf("Starting server")
 	err = r.Run(":8080")
 	if err != nil {
-		log.Logger.Error().Msgf("Error running the server on port 8080")
+		log.Logger.Error().Msgf("Error running the server on port 8080. Error: %s", err)
 	}
 
 	log.Logger.Info().Msgf("Stopping server")

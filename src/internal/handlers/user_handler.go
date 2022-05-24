@@ -48,7 +48,7 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 		return
 	}
 
-	if err = jsonSchemaCheck(newUser); err != nil {
+	if err = jsonSchemaUserCheck(newUser); err != nil {
 		log.Logger.Error().Msgf("Wrong body struct. Does not match with jsonSchema. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Wrong body struct. Does not match with jsonSchema."})
 		return
@@ -82,7 +82,7 @@ func (uh *UserHandler) userUpdate(c *gin.Context) {
 		return
 	}
 
-	if err = jsonSchemaCheck(updatedUser); err != nil {
+	if err = jsonSchemaUserCheck(updatedUser); err != nil {
 		log.Logger.Error().Msgf("Wrong body struct. Does not match with jsonSchema. Error: %s", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Wrong body struct. Does not match with jsonSchema."})
 		return
@@ -131,7 +131,7 @@ func (uh *UserHandler) getUsers(c *gin.Context) {
 
 }
 
-func jsonSchemaCheck(user model.User) error {
+func jsonSchemaUserCheck(user model.User) error {
 	loader := gojsonschema.NewReferenceLoader(os.Getenv("JSONSCHEMAPATH"))
 	result, err := gojsonschema.Validate(loader, gojsonschema.NewGoLoader(user))
 	if err != nil {

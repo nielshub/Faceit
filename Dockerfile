@@ -1,19 +1,16 @@
-FROM golang:alpine3.14 as build
+FROM golang:1.16-alpine
 
-WORKDIR /go/src/app
+# Set destination for COPY
+WORKDIR /app
+
+# Download Go modules
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 
 COPY . .
 
-#RUN go mod init
-
-RUN apk add git
-
-# Download all the dependencies
-RUN go get -d -v ./...
-
-# Install the package
-RUN go install -v ./...
-
+#RUN go install src/main.go
 RUN go build -o main ./src/cmd
 
-ENTRYPOINT ["/go/src/app/main"]
+ENTRYPOINT [ "/app/main" ]
