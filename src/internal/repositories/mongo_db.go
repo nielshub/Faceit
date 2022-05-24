@@ -71,6 +71,11 @@ func (repo *MongoDBRepository) GetUsers(ctx context.Context, key, value string) 
 		if err != nil {
 			return nil, err
 		}
+	} else if key == "" {
+		err := repo.Database.C(repo.CollectionName).Find(nil).All(&usersArray)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		return nil, errors.New("filter key is wrong")
 	}

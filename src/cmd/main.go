@@ -14,15 +14,21 @@ import (
 
 func main() {
 	log.Init("debug")
+	err := godotenv.Load("./env/variables.env")
+	if err != nil {
+		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
+		return
+	}
+	log.Logger.Info().Msgf("Environment variables loaded")
 
 	//When deploying app in Docker
-	dbURL := "mongodb://admin:password@mongodb"
-	//dbURL := "mongodb://localhost:27017"
+	dbURL := "mongodb"
 	colletionName := "users"
 	dataBaseName := "faceit"
 	session, err := mgo.Dial(dbURL)
 	if err != nil {
-		log.Logger.Error().Msgf("Error connecting to document db. Error: %s", err)
+		log.Logger.Error().Msgf("Error connecting to db. Error: %s", err)
+		return
 	}
 	log.Logger.Info().Msgf("Connected to users DB")
 
@@ -39,12 +45,6 @@ func main() {
 
 	handlers.NewHealthHandler(app)
 	handlers.NewUserHandler(app, userService)
-
-	err = godotenv.Load("../../env/variables.env")
-	if err != nil {
-		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
-	}
-	log.Logger.Info().Msgf("Environment variables loaded")
 
 	log.Logger.Info().Msgf("Starting server")
 	err = r.Run(":8080")
