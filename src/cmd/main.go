@@ -6,6 +6,7 @@ import (
 	service "Faceit/src/internal/services"
 	"Faceit/src/log"
 	"Faceit/src/middleware"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
@@ -23,14 +24,15 @@ func main() {
 	log.Logger.Info().Msgf("Environment variables loaded")
 
 	//When deploying app in Docker
-	dbURL := "mongodb"
-	colletionName := "users"
-	dataBaseName := "faceit"
+	dbURL := os.Getenv("DBURL")
+	usersCollectionName := os.Getenv("users")
+	dataBaseName := os.Getenv("faceit")
 	session, err := mgo.Dial(dbURL)
 	if err != nil {
 		log.Logger.Error().Msgf("Error connecting to db. Error: %s", err)
 		return
 	}
+	defer session.Close()
 	log.Logger.Info().Msgf("Connected to users DB")
 
 	db := mgo.Database{
@@ -41,7 +43,7 @@ func main() {
 	r := gin.Default()
 	app := r.Group("/", middleware.LoggerMiddleware())
 
-	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(colletionName, &db)
+	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(usersCollectionName, &db)
 	userService := service.NewUserService(NonRelationalUserDBRepository)
 
 	handlers.NewHealthHandler(app)
