@@ -23,7 +23,7 @@ func main() {
 	}
 	log.Logger.Info().Msgf("Environment variables loaded")
 
-	//When deploying app in Docker
+	//Connect to mongoDB in Docker
 	dbURL := os.Getenv("DBURL")
 	usersCollectionName := os.Getenv("users")
 	dataBaseName := os.Getenv("faceit")

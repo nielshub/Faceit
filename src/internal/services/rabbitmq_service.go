@@ -1,4 +1,4 @@
-package repositories
+package service
 
 import (
 	"Faceit/src/internal/model"
@@ -15,7 +15,7 @@ type Message struct {
 	Body        model.MessageBody
 }
 
-type Connection struct {
+type PublisherConnection struct {
 	name     string
 	conn     *amqp.Connection
 	channel  *amqp.Channel
@@ -24,8 +24,8 @@ type Connection struct {
 	err      chan error
 }
 
-func NewConnection(name, exchange string, queue string) *Connection {
-	return &Connection{
+func NewPublisherConnection(name, exchange string, queue string) *PublisherConnection {
+	return &PublisherConnection{
 		name:     name,
 		exchange: exchange,
 		queue:    queue,
@@ -33,7 +33,7 @@ func NewConnection(name, exchange string, queue string) *Connection {
 	}
 }
 
-func (c *Connection) Connect() error {
+func (c *PublisherConnection) Connect() error {
 	var err error
 	c.conn, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
 	if err != nil {
@@ -44,7 +44,7 @@ func (c *Connection) Connect() error {
 
 	go func() {
 		<-c.conn.NotifyClose(make(chan *amqp.Error))
-		c.err <- errors.New("Connection Closed")
+		c.err <- errors.New("PublisherConnection Closed")
 	}()
 
 	c.channel, err = c.conn.Channel()
@@ -71,7 +71,7 @@ func (c *Connection) Connect() error {
 }
 
 // Save bindQueue function if we want to use this as a library and use it in the consumer
-// func (c *Connection) BindQueue() error {
+// func (c *PublisherConnection) BindQueue() error {
 // 	if _, err := c.channel.QueueDeclare(c.queue, true, false, false, false, nil); err != nil {
 // 		log.Logger.Error().Msgf("Error declaring the queue. Error: %s", err)
 // 		return err
@@ -86,8 +86,8 @@ func (c *Connection) Connect() error {
 // 	return nil
 // }
 
-//Reconnect reconnects the connection
-func (c *Connection) Reconnect() error {
+//Reconnect reconnects the PublisherConnection
+func (c *PublisherConnection) Reconnect() error {
 	if err := c.Connect(); err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (c *Connection) Reconnect() error {
 	return nil
 }
 
-func (c *Connection) Publish(m Message) error {
+func (c *PublisherConnection) Publish(m Message) error {
 	select {
 	case err := <-c.err:
 		if err != nil {
