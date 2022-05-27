@@ -74,7 +74,9 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 	err = uh.publisherService.Publish(outMsg)
 	if err != nil {
 		log.Logger.Error().Msgf("Error sending user event to the rabbit queue. Error: %s", err)
-		response = "User has been created properly. User ID: " + createdUser.ID + ". Message has not been sent to rabbitMQ."
+		response = response + ". Message has not been sent to rabbitMQ."
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": response})
+		return
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -109,6 +111,20 @@ func (uh *UserHandler) userUpdate(c *gin.Context) {
 	}
 	response := "User:" + finalUser.ID + " has been updated properly."
 
+	outMsg := model.Message{
+		Queue:       "",
+		ContentType: "text/plain",
+		Data:        []byte(response),
+	}
+
+	err = uh.publisherService.Publish(outMsg)
+	if err != nil {
+		log.Logger.Error().Msgf("Error sending user event to the rabbit queue. Error: %s", err)
+		response = response + ". Message has not been sent to rabbitMQ."
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": response})
+		return
+	}
+
 	c.JSON(http.StatusOK, response)
 
 }
@@ -123,6 +139,20 @@ func (uh *UserHandler) userDelete(c *gin.Context) {
 		return
 	}
 	response := "User:" + id + " has been deleted properly."
+
+	outMsg := model.Message{
+		Queue:       "",
+		ContentType: "text/plain",
+		Data:        []byte(response),
+	}
+
+	err = uh.publisherService.Publish(outMsg)
+	if err != nil {
+		log.Logger.Error().Msgf("Error sending user event to the rabbit queue. Error: %s", err)
+		response = response + ". Message has not been sent to rabbitMQ."
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": response})
+		return
+	}
 
 	c.JSON(http.StatusOK, response)
 
