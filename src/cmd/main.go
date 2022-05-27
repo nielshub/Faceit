@@ -47,6 +47,10 @@ func main() {
 	userService := service.NewUserService(NonRelationalUserDBRepository)
 
 	publisherService := service.NewPublisherConnection("userEvents", "")
+	if err := publisherService.Connect(); err != nil {
+		log.Logger.Error().Msgf("Error connecting to rabbitMQ. Error: %s", err)
+		return
+	}
 
 	handlers.NewHealthHandler(app)
 	handlers.NewUserHandler(app, userService, publisherService)

@@ -98,9 +98,8 @@ func (c *PublisherConnection) Publish(m model.Message) error {
 	}
 
 	p := amqp.Publishing{
-		Headers:     amqp.Table{"type": m.Body.Type},
 		ContentType: m.ContentType,
-		Body:        m.Body.Data,
+		Body:        m.Data,
 	}
 	if err := c.channel.Publish(c.exchange, m.Queue, false, false, p); err != nil {
 		log.Logger.Error().Msgf("Error Publishing. Error: %s", err)

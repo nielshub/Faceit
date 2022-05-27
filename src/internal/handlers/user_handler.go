@@ -15,12 +15,13 @@ import (
 )
 
 type UserHandler struct {
-	router      *gin.RouterGroup
-	userService ports.UserService
+	router           *gin.RouterGroup
+	userService      ports.UserService
+	publisherService ports.PublisherService
 }
 
 func NewUserHandler(app *gin.RouterGroup, userService ports.UserService, publisherService ports.PublisherService) UserHandler {
-	userAPI := UserHandler{userService: userService}
+	userAPI := UserHandler{userService: userService, publisherService: publisherService}
 
 	userRooter := app.Group("/user")
 	userRooter.POST("/create", userAPI.userCreate)
@@ -63,6 +64,18 @@ func (uh *UserHandler) userCreate(c *gin.Context) {
 		return
 	}
 	response := "User has been created properly. User ID: " + createdUser.ID
+
+	outMsg := model.Message{
+		Queue:       "",
+		ContentType: "text/plain",
+		Data:        []byte(response),
+	}
+
+	err = uh.publisherService.Publish(outMsg)
+	if err != nil {
+		log.Logger.Error().Msgf("Error sending user event to the rabbit queue. Error: %s", err)
+		response = "User has been created properly. User ID: " + createdUser.ID + ". Message has not been sent to rabbitMQ."
+	}
 
 	c.JSON(http.StatusOK, response)
 
