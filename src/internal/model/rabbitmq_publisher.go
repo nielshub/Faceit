@@ -5,3 +5,9 @@ type MessageBody struct {
 	Data []byte
 	Type string
 }
+
+type Message struct {
+	Queue       string
+	ContentType string
+	Body        MessageBody
+}

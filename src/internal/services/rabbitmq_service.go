@@ -8,15 +8,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-//Message is the amqp request to publish
-type Message struct {
-	Queue       string
-	ContentType string
-	Body        model.MessageBody
-}
-
 type PublisherConnection struct {
-	name     string
 	conn     *amqp.Connection
 	channel  *amqp.Channel
 	exchange string
@@ -24,9 +16,8 @@ type PublisherConnection struct {
 	err      chan error
 }
 
-func NewPublisherConnection(name, exchange string, queue string) *PublisherConnection {
+func NewPublisherConnection(exchange string, queue string) *PublisherConnection {
 	return &PublisherConnection{
-		name:     name,
 		exchange: exchange,
 		queue:    queue,
 		err:      make(chan error),
@@ -97,7 +88,7 @@ func (c *PublisherConnection) Reconnect() error {
 	return nil
 }
 
-func (c *PublisherConnection) Publish(m Message) error {
+func (c *PublisherConnection) Publish(m model.Message) error {
 	select {
 	case err := <-c.err:
 		if err != nil {

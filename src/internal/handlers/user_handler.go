@@ -19,7 +19,7 @@ type UserHandler struct {
 	userService ports.UserService
 }
 
-func NewUserHandler(app *gin.RouterGroup, userService ports.UserService) UserHandler {
+func NewUserHandler(app *gin.RouterGroup, userService ports.UserService, publisherService ports.PublisherService) UserHandler {
 	userAPI := UserHandler{userService: userService}
 
 	userRooter := app.Group("/user")

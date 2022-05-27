@@ -46,8 +46,10 @@ func main() {
 	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(usersCollectionName, &db)
 	userService := service.NewUserService(NonRelationalUserDBRepository)
 
+	publisherService := service.NewPublisherConnection("userEvents", "")
+
 	handlers.NewHealthHandler(app)
-	handlers.NewUserHandler(app, userService)
+	handlers.NewUserHandler(app, userService, publisherService)
 
 	log.Logger.Info().Msgf("Starting server")
 	err = r.Run(":8080")

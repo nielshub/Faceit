@@ -2,8 +2,8 @@ package ports
 
 import "Faceit/src/internal/model"
 
-type Publisher interface {
+type PublisherService interface {
 	Connect() error
 	Reconnect() error
-	Publish(model.MessageBody) error
+	Publish(model.Message) error
 }
