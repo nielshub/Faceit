@@ -25,8 +25,8 @@ func main() {
 
 	//Connect to mongoDB in Docker
 	dbURL := os.Getenv("DBURL")
-	usersCollectionName := os.Getenv("users")
-	dataBaseName := os.Getenv("faceit")
+	usersCollectionName := os.Getenv("USERSCOLLECTIONNAME")
+	dataBaseName := os.Getenv("DATABASENAME")
 	session, err := mgo.Dial(dbURL)
 	if err != nil {
 		log.Logger.Error().Msgf("Error connecting to db. Error: %s", err)
@@ -48,8 +48,7 @@ func main() {
 
 	publisherService := service.NewPublisherConnection("userEvents", "")
 	if err := publisherService.Connect(); err != nil {
-		log.Logger.Error().Msgf("Error connecting to rabbitMQ. Error: %s", err)
-		return
+		log.Logger.Error().Msgf("Error connecting to rabbitMQ. Error: %s. Will retry after an event is sent to mongo DB", err)
 	}
 
 	handlers.NewHealthHandler(app)
