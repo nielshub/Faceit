@@ -9,8 +9,8 @@ import (
 )
 
 type PublisherConnection struct {
-	conn     *amqp.Connection
-	channel  *amqp.Channel
+	Conn     *amqp.Connection
+	Channel  *amqp.Channel
 	exchange string
 	queue    string
 	err      chan error
@@ -26,26 +26,24 @@ func NewPublisherConnection(exchange string, queue string) *PublisherConnection 
 
 func (c *PublisherConnection) Connect() error {
 	var err error
-	c.conn, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
+	c.Conn, err = amqp.Dial("amqp://guest:guest@rabbitmq/")
 	if err != nil {
 		log.Logger.Error().Msgf("Error connecting to rabbitMQ. Error: %s", err)
 		return err
 	}
-	defer c.conn.Close()
 
 	go func() {
-		<-c.conn.NotifyClose(make(chan *amqp.Error))
+		<-c.Conn.NotifyClose(make(chan *amqp.Error))
 		c.err <- errors.New("PublisherConnection Closed")
 	}()
 
-	c.channel, err = c.conn.Channel()
+	c.Channel, err = c.Conn.Channel()
 	if err != nil {
 		log.Logger.Error().Msgf("Channel error: %s", err)
 		return err
 	}
-	defer c.channel.Close()
 
-	if err := c.channel.ExchangeDeclare(
+	if err := c.Channel.ExchangeDeclare(
 		c.exchange, // name
 		"fanout",   // type
 		true,       // durable
@@ -101,7 +99,7 @@ func (c *PublisherConnection) Publish(m model.Message) error {
 		ContentType: m.ContentType,
 		Body:        m.Data,
 	}
-	if err := c.channel.Publish(c.exchange, m.Queue, false, false, p); err != nil {
+	if err := c.Channel.Publish(c.exchange, m.Queue, false, false, p); err != nil {
 		log.Logger.Error().Msgf("Error Publishing. Error: %s", err)
 		return err
 	}

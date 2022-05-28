@@ -7,6 +7,7 @@ import (
 	"Faceit/src/log"
 	"Faceit/src/middleware"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
@@ -14,27 +15,28 @@ import (
 )
 
 func main() {
+	// Start logger and load environment variables
 	log.Init("debug")
 	//err := godotenv.Load("./env/variables.env") for Local env
 	err := godotenv.Load("/usr/local/bin/variables.env")
 	if err != nil {
 		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
-		return
+		panic(err)
 	}
 	log.Logger.Info().Msgf("Environment variables loaded")
 
-	//Connect to mongoDB in Docker
+	// Connect to mongoDB in Docker
 	dbURL := os.Getenv("DBURL")
 	usersCollectionName := os.Getenv("USERSCOLLECTIONNAME")
 	dataBaseName := os.Getenv("DATABASENAME")
 	session, err := mgo.Dial(dbURL)
 	if err != nil {
-		log.Logger.Error().Msgf("Error connecting to db. Error: %s", err)
-		return
+		panic(err)
 	}
 	defer session.Close()
 	log.Logger.Info().Msgf("Connected to users DB")
 
+	// Create repositories / services / handlers and app
 	db := mgo.Database{
 		Session: session,
 		Name:    dataBaseName,
@@ -46,14 +48,21 @@ func main() {
 	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(usersCollectionName, &db)
 	userService := service.NewUserService(NonRelationalUserDBRepository)
 
+	// Time to wait for rabbitMQ starts with docker-compose
+	time.Sleep(15 * time.Second)
+
 	publisherService := service.NewPublisherConnection("userEvents", "")
 	if err := publisherService.Connect(); err != nil {
-		log.Logger.Error().Msgf("Error connecting to rabbitMQ. Error: %s. Will retry after an event is sent to mongo DB", err)
+		panic(err)
 	}
+	log.Logger.Info().Msgf("Connected to publisher service")
+	defer publisherService.Conn.Close()
+	defer publisherService.Channel.Close()
 
 	handlers.NewHealthHandler(app)
 	handlers.NewUserHandler(app, userService, publisherService)
 
+	// Run server
 	log.Logger.Info().Msgf("Starting server")
 	err = r.Run(":8080")
 	if err != nil {
