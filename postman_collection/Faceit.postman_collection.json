@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "2abd13b8-82d5-415e-a4b2-c4baaa3e8744",
+		"name": "Faceit",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11062632"
+	},
+	"item": [
+		{
+			"name": "UserCreate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"first_name\": \"Abi\",\r\n    \"last_name\": \"Sanchez\", \r\n    \"nickname\": \"Test123\", \r\n    \"password\": \"cool1\",\r\n    \"email\": \"Abi@test.com\",\r\n    \"country\": \"UK\"\r\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/user/create",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/health",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserUpdate",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"first_name\": \"\",\r\n    \"nickname\": \"\", \r\n    \"password\": \"newpass\",\r\n    \"email\": \"\",\r\n    \"country\": \"\"\r\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/user/update/d444d8f7-dc12-49d2-bfe7-e63043c675e0",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"update",
+						"d444d8f7-dc12-49d2-bfe7-e63043c675e0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUser",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/user/delete/8ea14a9c-d98a-4f4d-a27d-80a88bddbb25",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"delete",
+						"8ea14a9c-d98a-4f4d-a27d-80a88bddbb25"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUsers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/user/get?key=country&value=UK",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"get"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "country"
+						},
+						{
+							"key": "value",
+							"value": "UK"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

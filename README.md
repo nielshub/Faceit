@@ -19,6 +19,13 @@ DATABASENAME="faceit"
 - run following command in main folder of the repo: docker-compose up --build
 - In order to check rabbitMQ connections: http://localhost:15672/ user = guest / password = guest
 - In order to check mongoDB: http://localhost:8081/ no password / user is required for this project
+- Postman collection has been done, please see attached in the repository. In order to make it work you can:
+
+* Check health
+* Create user
+* Update user
+* Delete user
+* Get users. No key value get all the users, a proper key string filters with that key -> options key == "first_name" || key == "last_name" || key == "nickname" || key == "password" || key == "email" || key == "country"
 
 ## An explanation of the choices taken and assumptions made during development
 
