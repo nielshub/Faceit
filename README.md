@@ -29,6 +29,8 @@ For the pub/sub pattern a very simple approach has been taken because no require
 
 However, if it is required a more sensitive approach, outbox pattern can be taken, creating a outbox DB with all the events from the main database and adding a worker that reads from that database and send the info to rabbitMQ, with this approach we ensure we do not lose information if something crashes. Or a worker that reads from the change streams in mongo DB in order to send this information asynchronous to the rabbitMQ so we ensure the order of the events sent to rabbitMQ is exactly what happens in the main DB.
 
+Code is mainly synchronous because with defined requirements there is no need to over engineer things. The only asynchronous routine is the reconnect from the rabbitMQ. A channel that is listening if the connection notify close and restart the connection.
+
 ## Possible extensions or improvements to the service (focusing on scalability and deployment to production)
 
 - Configure env variables for the different environments
