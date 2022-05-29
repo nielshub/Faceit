@@ -3,7 +3,6 @@ package repositories
 import (
 	"Faceit/src/internal/model"
 	"context"
-	"errors"
 
 	"github.com/globalsign/mgo"
 	"gopkg.in/mgo.v2/bson"
@@ -63,21 +62,22 @@ func (repo *MongoDBRepository) DeleteUser(ctx context.Context, userId string) er
 	return err
 }
 
-func (repo *MongoDBRepository) GetUsers(ctx context.Context, key, value string) ([]model.User, error) {
+func (repo *MongoDBRepository) GetUsersWithFilter(ctx context.Context, key, value string) ([]model.User, error) {
 	var usersArray []model.User
-	if key == "first_name" || key == "last_name" || key == "nickname" || key == "password" || key == "email" || key == "country" {
-		filter := bson.M{key: value}
-		err := repo.Database.C(repo.CollectionName).Find(filter).All(&usersArray)
-		if err != nil {
-			return nil, err
-		}
-	} else if key == "" {
-		err := repo.Database.C(repo.CollectionName).Find(nil).All(&usersArray)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, errors.New("filter key is wrong")
+	filter := bson.M{key: value}
+	err := repo.Database.C(repo.CollectionName).Find(filter).All(&usersArray)
+	if err != nil {
+		return nil, err
+	}
+
+	return usersArray, nil
+}
+
+func (repo *MongoDBRepository) GetAllUsers(ctx context.Context) ([]model.User, error) {
+	var usersArray []model.User
+	err := repo.Database.C(repo.CollectionName).Find(nil).All(&usersArray)
+	if err != nil {
+		return nil, err
 	}
 
 	return usersArray, nil

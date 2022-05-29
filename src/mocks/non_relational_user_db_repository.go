@@ -64,19 +64,34 @@ func (mr *MockNonRelationalUserDBRepositoryMockRecorder) DeleteUser(arg0, arg1 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockNonRelationalUserDBRepository)(nil).DeleteUser), arg0, arg1)
 }
 
-// GetUsers mocks base method.
-func (m *MockNonRelationalUserDBRepository) GetUsers(arg0 context.Context, arg1, arg2 string) ([]model.User, error) {
+// GetAllUsers mocks base method.
+func (m *MockNonRelationalUserDBRepository) GetAllUsers(arg0 context.Context) ([]model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsers", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetAllUsers", arg0)
 	ret0, _ := ret[0].([]model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUsers indicates an expected call of GetUsers.
-func (mr *MockNonRelationalUserDBRepositoryMockRecorder) GetUsers(arg0, arg1, arg2 interface{}) *gomock.Call {
+// GetAllUsers indicates an expected call of GetAllUsers.
+func (mr *MockNonRelationalUserDBRepositoryMockRecorder) GetAllUsers(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockNonRelationalUserDBRepository)(nil).GetUsers), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockNonRelationalUserDBRepository)(nil).GetAllUsers), arg0)
+}
+
+// GetUsersWithFilter mocks base method.
+func (m *MockNonRelationalUserDBRepository) GetUsersWithFilter(arg0 context.Context, arg1, arg2 string) ([]model.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersWithFilter", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]model.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersWithFilter indicates an expected call of GetUsersWithFilter.
+func (mr *MockNonRelationalUserDBRepositoryMockRecorder) GetUsersWithFilter(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersWithFilter", reflect.TypeOf((*MockNonRelationalUserDBRepository)(nil).GetUsersWithFilter), arg0, arg1, arg2)
 }
 
 // UpdateUser mocks base method.

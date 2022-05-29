@@ -247,3 +247,76 @@ func TestDeleteUser(t *testing.T) {
 		}
 	}
 }
+
+// TODO
+func TestGetUsers(t *testing.T) {
+	// · Mocks · //
+	userId := ""
+
+	// · Tests · //
+	type want struct {
+		result *model.User
+		err    error
+	}
+
+	tests := []struct {
+		name   string
+		user   model.User
+		userId string
+		want   want
+		result string
+		mocks  func(m mocksUserService)
+	}{
+		{
+			name:   "Should update user succesfully",
+			userId: userId,
+			want: want{
+				err: nil,
+			},
+			mocks: func(m mocksUserService) {
+				m.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), userId).Return(nil)
+			},
+		},
+		{
+			name: "Should return error - userId not found",
+			want: want{
+				result: nil,
+				err:    errors.New("userId not found"),
+			},
+			mocks: func(m mocksUserService) {
+				m.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), userId).Return(errors.New("userId not found"))
+			},
+		},
+		{
+			name: "Should return error - Failed to query",
+			want: want{
+				result: nil,
+				err:    errors.New("Failed to query"),
+			},
+			mocks: func(m mocksUserService) {
+				m.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), userId).Return(errors.New("Failed to query"))
+			},
+		},
+	}
+
+	// · Runner · //
+	for _, tt := range tests {
+		tt := tt
+
+		// Prepare
+		m := mocksUserService{
+			nonRelationalUserDBRepository: mocks.NewMockNonRelationalUserDBRepository(gomock.NewController(t)),
+		}
+
+		tt.mocks(m)
+		userService := NewUserService(m.nonRelationalUserDBRepository)
+
+		// Execute
+		err := userService.DeleteUser(context.Background(), tt.userId)
+
+		// Verify
+		if tt.want.err != nil && err != nil {
+			assert.Equal(t, tt.want.err.Error(), err.Error())
+		}
+	}
+}

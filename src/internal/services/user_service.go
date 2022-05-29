@@ -4,6 +4,7 @@ import (
 	"Faceit/src/internal/model"
 	"Faceit/src/internal/ports"
 	"context"
+	"errors"
 )
 
 type UserService struct {
@@ -29,5 +30,19 @@ func (user *UserService) UpdateUser(ctx context.Context, userId string, updatedU
 }
 
 func (user *UserService) GetUsers(ctx context.Context, key, value string) ([]model.User, error) {
-	return user.relationalUserDBRepository.GetUsers(ctx, key, value)
+	if key == "first_name" || key == "last_name" || key == "nickname" || key == "password" || key == "email" || key == "country" {
+		users, err := user.relationalUserDBRepository.GetUsersWithFilter(ctx, key, value)
+		if err != nil {
+			return nil, err
+		}
+		return users, nil
+	} else if key == "" {
+		users, err := user.relationalUserDBRepository.GetAllUsers(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return users, nil
+	} else {
+		return nil, errors.New("filter key is wrong")
+	}
 }
