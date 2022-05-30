@@ -149,7 +149,7 @@ func (uh *UserHandler) userDelete(c *gin.Context) {
 	err = uh.publisherService.Publish(outMsg)
 	if err != nil {
 		log.Logger.Error().Msgf("Error sending user event to the rabbit queue. Error: %s", err)
-		response = response + ". Message has not been sent to rabbitMQ."
+		response = response + " Message has not been sent to rabbitMQ."
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": response})
 		return
 	}

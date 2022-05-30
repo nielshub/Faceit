@@ -78,7 +78,21 @@ func TestUserDelete(t *testing.T) {
 			},
 			mocks: func(mUS mocksUserService, mPS mockUserHandler) {
 				mUS.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), id).Return(errors.New("Error deleting user"))
-				//mPS.publisherService.EXPECT().Publish(outMsg).Return(nil)
+			},
+		},
+		{
+			name: "Should return error - Failed to publish to rabbitMQ",
+			url:  "/user/delete/" + id,
+			want: want{
+				code: http.StatusInternalServerError,
+				response: `{
+					"message": "User:userId has been deleted properly. Message has not been sent to rabbitMQ."
+				}`,
+				err: errors.New("Error deleting user"),
+			},
+			mocks: func(mUS mocksUserService, mPS mockUserHandler) {
+				mUS.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), id).Return(nil)
+				mPS.publisherService.EXPECT().Publish(outMsg).Return(errors.New(""))
 			},
 		},
 	}
