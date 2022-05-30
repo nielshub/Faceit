@@ -48,7 +48,7 @@ func main() {
 	userService := service.NewUserService(NonRelationalUserDBRepository)
 
 	// Time to wait for rabbitMQ starts with docker-compose
-	time.Sleep(15 * time.Second)
+	time.Sleep(20 * time.Second)
 
 	publisherService := service.NewPublisherConnection("userEvents", "")
 	if err := publisherService.Connect(); err != nil {

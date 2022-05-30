@@ -3,8 +3,7 @@ FROM golang:1.16-alpine AS build
 
 ADD . /app
 WORKDIR /app
-# Run test and build binary
-#RUN go test --cover -v ./...
+# Run Build binary
 RUN go build -v -o faceit ./src/cmd
 
 FROM alpine:3.4
