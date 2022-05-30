@@ -251,50 +251,82 @@ func TestDeleteUser(t *testing.T) {
 // TODO
 func TestGetUsers(t *testing.T) {
 	// · Mocks · //
-	userId := ""
+	userMock := model.User{
+		FirstName: "Niels",
+		LastName:  "Sanchez",
+		Nickname:  "Raws",
+		Password:  "Niels1",
+		Email:     "niels@niels.com",
+		Country:   "SP",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	userMockArray := []model.User{
+		userMock,
+		userMock,
+	}
 
 	// · Tests · //
 	type want struct {
-		result *model.User
+		result []model.User
 		err    error
 	}
 
 	tests := []struct {
 		name   string
 		user   model.User
-		userId string
+		key    string
+		value  string
 		want   want
 		result string
 		mocks  func(m mocksUserService)
 	}{
 		{
-			name:   "Should update user succesfully",
-			userId: userId,
+			name:  "Should get users succesfully with no filter",
+			key:   "",
+			value: "",
 			want: want{
-				err: nil,
+				result: userMockArray,
+				err:    nil,
 			},
 			mocks: func(m mocksUserService) {
-				m.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), userId).Return(nil)
+				m.nonRelationalUserDBRepository.EXPECT().GetAllUsers(context.Background()).Return(userMockArray, nil)
 			},
 		},
 		{
-			name: "Should return error - userId not found",
+			name:  "Should get users succesfully with a filter",
+			key:   "country",
+			value: "SP",
+			want: want{
+				result: userMockArray,
+				err:    nil,
+			},
+			mocks: func(m mocksUserService) {
+				m.nonRelationalUserDBRepository.EXPECT().GetUsersWithFilter(context.Background(), "country", "SP").Return(userMockArray, nil)
+			},
+		},
+		{
+			name:  "Should return error - wrong filter",
+			key:   "wrongFilter",
+			value: "",
 			want: want{
 				result: nil,
-				err:    errors.New("userId not found"),
+				err:    errors.New("filter key is wrong"),
 			},
 			mocks: func(m mocksUserService) {
-				m.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), userId).Return(errors.New("userId not found"))
+				//m.nonRelationalUserDBRepository.EXPECT().GetUsersWithFilter(context.Background(), "wrongFilter", "").Return(errors.New("filter key is wrong"))
 			},
 		},
 		{
-			name: "Should return error - Failed to query",
+			name:  "Should return error - Failed to query",
+			key:   "",
+			value: "",
 			want: want{
 				result: nil,
 				err:    errors.New("Failed to query"),
 			},
 			mocks: func(m mocksUserService) {
-				m.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), userId).Return(errors.New("Failed to query"))
+				m.nonRelationalUserDBRepository.EXPECT().GetAllUsers(context.Background()).Return(nil, errors.New("Failed to query"))
 			},
 		},
 	}
@@ -312,11 +344,12 @@ func TestGetUsers(t *testing.T) {
 		userService := NewUserService(m.nonRelationalUserDBRepository)
 
 		// Execute
-		err := userService.DeleteUser(context.Background(), tt.userId)
+		users, err := userService.GetUsers(context.Background(), tt.key, tt.value)
 
 		// Verify
 		if tt.want.err != nil && err != nil {
 			assert.Equal(t, tt.want.err.Error(), err.Error())
 		}
+		assert.Equal(t, &tt.want.result, &users)
 	}
 }
