@@ -7,6 +7,7 @@ import (
 	"Faceit/src/mocks"
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,7 +33,6 @@ func TestUserDelete(t *testing.T) {
 	// · Mocks · //
 	id := "userId"
 	response := "User:" + id + " has been deleted properly."
-	jsonResponse := "\"User:userId has been deleted properly.\""
 	outMsg := model.Message{
 		Queue:       "",
 		ContentType: "text/plain",
@@ -57,8 +57,8 @@ func TestUserDelete(t *testing.T) {
 			name: "Should delete user succesfully",
 			url:  "/user/delete/" + id,
 			want: want{
-				code:     200,
-				response: jsonResponse,
+				code:     http.StatusOK,
+				response: "\"User:userId has been deleted properly.\"",
 				err:      nil,
 			},
 			mocks: func(mUS mocksUserService, mPS mockUserHandler) {
@@ -66,19 +66,21 @@ func TestUserDelete(t *testing.T) {
 				mPS.publisherService.EXPECT().Publish(outMsg).Return(nil)
 			},
 		},
-		// {
-		// 	name: "Should return error - Failed to query DB",
-		// 	url:  "/user/delete/" + id,
-		// 	want: want{
-		// 		code:     500,
-		// 		response: "Internal server error",
-		// 		err:      errors.New("Failed to query"),
-		// 	},
-		// 	mocks: func(mUS mocksUserService, mPS mockUserHandler) {
-		// 		mUS.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), id).Return(nil)
-		// 		//mPS.publisherService.EXPECT().Publish(outMsg).Return(nil)
-		// 	},
-		// },
+		{
+			name: "Should return error - Failed to query DB",
+			url:  "/user/delete/" + id,
+			want: want{
+				code: http.StatusInternalServerError,
+				response: `{
+					"message": "Error deleting user"
+				}`,
+				err: errors.New("Error deleting user"),
+			},
+			mocks: func(mUS mocksUserService, mPS mockUserHandler) {
+				mUS.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), id).Return(errors.New("Error deleting user"))
+				//mPS.publisherService.EXPECT().Publish(outMsg).Return(nil)
+			},
+		},
 	}
 
 	// · Runner · //
